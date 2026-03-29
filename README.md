@@ -39,7 +39,9 @@ Cấu trúc thư mục:
 └── requirements.txt         # Danh sách thư viện
 ```
 
-## Hướng dẫn để bắt đầu
+## Hướng dẫn cho người cài đặt project lần đầu
+
+Cài đặt python 3.14 (pip 25.3)
 
 Tạo môi trường ảo:
 
@@ -52,13 +54,7 @@ venv\Scripts\activate           # Windows
 Cài đặt các thư viện python:
 
 ```bash
-pip install fastapi uvicorn sqlalchemy alembic pydantic python-jose passlib
-```
-
-Thiết lập alembic:
-
-```bash
-alembic init alembic
+pip install -r requirements.txt
 ```
 
 
