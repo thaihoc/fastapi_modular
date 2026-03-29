@@ -11,7 +11,7 @@ def register_routers(app: FastAPI, api_prefix: str = "/api/v1"):
         except ModuleNotFoundError:
             continue
         except Exception as e:
-            print(f"[ERROR] loading {module_name}: {e}")
+            print(f"[ERROR] loading router for module {module_name}: {e}")
             continue
 
         router = getattr(module, "router", None)

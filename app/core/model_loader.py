@@ -2,13 +2,11 @@ import importlib
 import pkgutil
 import app.modules
 
-
-def register_dependencies():
+def load_models():
     for _, module_name, _ in pkgutil.iter_modules(app.modules.__path__):
         try:
-            importlib.import_module(f"app.modules.{module_name}.deps")
+            importlib.import_module(f"app.modules.{module_name}.models")
         except ModuleNotFoundError:
-            continue
+            pass
         except Exception as e:
-            print(f"[ERROR] loading {module_name}: {e}")
-            continue
+            print(f"[ERROR] loading model for module {module_name}: {e}")
