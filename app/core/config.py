@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    app_name: str = "FastAPI Template"
+    app_name: str = "FastAPI Module-based Template"
     debug: bool = False
     
     db_url: str

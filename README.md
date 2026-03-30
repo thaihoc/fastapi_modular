@@ -39,16 +39,16 @@ Cấu trúc thư mục:
 └── requirements.txt         # Danh sách thư viện
 ```
 
-## Hướng dẫn cho người cài đặt project lần đầu
+## Hướng dẫn setup project lần đầu
 
 Cài đặt python 3.14 (pip 25.3)
 
 Tạo môi trường ảo:
 
 ```bash
-python -m venv dns              # dns --> Tên của môi trường ảo
+python -m venv .venv              # .venv --> Tên của môi trường ảo
 source venv/bin/activate        # Mac/Linux
-venv\Scripts\activate           # Windows
+.venv\Scripts\activate           # Windows
 ```
 
 Cài đặt các thư viện python:
@@ -56,5 +56,11 @@ Cài đặt các thư viện python:
 ```bash
 pip install -r requirements.txt
 ```
+
+Cài đặt postgres bằng podman (nếu chưa có) --> xem hướng dẫn chi tiết tại thư mục docs.
+
+
+
+
 
 
