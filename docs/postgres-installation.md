@@ -2,6 +2,8 @@
 
 Cài đặt Postgres bằng Podman.
 
+# Hướng dẫn cài đặt
+
 Tạo volumn:
 
 ```bash
@@ -25,4 +27,28 @@ SELECT current_database();
 
 \l              # liệt kê danh sách các database
 \dt             # liệt kê danh sách các table trong database hiện tại
+```
+
+# Hướng dẫn tạo user và database cho ứng dụng
+
+Mặc định, chúng ta không nên dùng user admin cho ứng dụng. Hãy tạo user và database riêng cho ứng dụng như sau:
+
+```sql
+CREATE USER lx360u WITH PASSWORD 'lx360p';
+
+CREATE DATABASE lx360db OWNER lx360u;
+
+GRANT CONNECT ON DATABASE lx360db TO lx360u;
+GRANT USAGE ON SCHEMA public TO lx360u;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO lx360u;
+
+-- Cho phép quyền trên table tạo mới sau này
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO lx360u;
+```
+
+Chuỗi kết nối cập nhật vào ứng dụng theo định dạng sau:
+
+```
+DATABASE_URL=postgresql://lx360u:lx360p@localhost:5432/lx360db
 ```
