@@ -1,5 +1,17 @@
 # Cấu trúc source code FastAPI
 
+Các tính năng chính:
+
+* Cấu trúc thư mục theo hướng modular (module-based)
+* Tự động sinh ra API docs (/docs)
+* Database migration (sử dụng Alembic)
+* Tự động register routers
+* Xác thực RESTful APIs bằng JWT
+* Kiểm tra quyền với nhiều giải pháp RBAC, ABAC và ACL (sử dụng Casbin)
+* Cache với Redis
+* Message queue với Redis
+* Xử lý file với MinIO
+
 Cấu trúc thư mục:
 
 ```plaintext
@@ -99,7 +111,11 @@ pip freeze > requirements.txt
 Chạy ứng dụng:
 
 ```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# tự động reload lại
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
 ```
 
 
