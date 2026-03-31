@@ -34,6 +34,7 @@ SELECT current_database();
 Mặc định, chúng ta không nên dùng user admin cho ứng dụng. Hãy tạo user và database riêng cho ứng dụng như sau:
 
 ```sql
+-- Đăng nhập bằng tài khoản admin phía trên và thực hiện các lệnh bên dưới
 CREATE USER lx360u WITH PASSWORD 'lx360p';
 
 CREATE DATABASE lx360db OWNER lx360u;

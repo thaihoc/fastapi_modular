@@ -41,40 +41,65 @@ Cấu trúc thư mục:
 
 ## Hướng dẫn setup project lần đầu
 
-Cài đặt python 3.14 (pip 25.3)
+Bước 1: Cài đặt python 3.14+ (pip 25+).
 
-Tạo môi trường ảo:
+Bước 2: Tạo môi trường ảo:
 
 ```bash
 python -m venv .venv              # .venv --> Tên của môi trường ảo
-source venv/bin/activate        # Mac/Linux
-.venv\Scripts\activate           # Windows
 ```
 
-Cài đặt các thư viện python:
+Bước 3: Cài đặt các thư viện python:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Cài đặt postgres bằng podman (nếu chưa có) --> xem hướng dẫn chi tiết tại thư mục docs.
+Bước 4: Tạo file cấu hình .env với nội dung sau:
 
-## Hướng dẫn migrate database
+```bash
+APP_NAME=FastAPI Modular Tempate
+DEBUG=True
+
+DB_URL=postgresql://lx360u:lx360p@localhost:5432/lx360db
+REDIS_URL=redis://localhost:6379/0
+```
+
+Bước 5: Thực hiện migrate database
+
+```bash
+alembic revision --autogenerate -m "init"
+alembic upgrade head
+```
+
+Ghi chú: Tham khảo cài đặt postgres bằng podman (nếu chưa có) chi tiết tại thư mục docs.
+
+## Hướng dẫn làm việc với project
+
+Luôn luôn sử dụng môi trường ảo khi làm việc
+
+```bash
+source .venv/bin/activate        # Mac/Linux
+.venv\Scripts\activate           # Windows
+```
 
 Mỗi khi có thay đổi models thực hiện chạy migrate database để update lại CSDL:
 
 ```bash
-alembic revision --autogenerate -m "init"
-
+alembic revision --autogenerate -m "them bang luu danh muc chuc vu"
 alembic upgrade head
 ```
 
-## Lưu ý
-
-Mỗi lần cài thêm thư viện cần chạy lại lệnh
+Mỗi khi có thêm mới, nâng cấp hoặc xoá thư viện hãy update lại file requirements.txt bằng lệnh:
 
 ```bash
+pip freeze > requirements.txt
+```
 
+Chạy ứng dụng:
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 

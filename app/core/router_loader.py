@@ -1,8 +1,9 @@
 import importlib
 import pkgutil
+import app.modules
 from fastapi import FastAPI
 
-def register_routers(app: FastAPI, api_prefix: str = "/api/v1"):
+def register_routers(fastapi: FastAPI, api_prefix: str = "/api/v1"):
     for _, module_name, _ in pkgutil.iter_modules(app.modules.__path__):
         module_path = f"app.modules.{module_name}.api"
 
@@ -17,6 +18,6 @@ def register_routers(app: FastAPI, api_prefix: str = "/api/v1"):
         router = getattr(module, "router", None)
 
         if router:
-            app.include_router(router, prefix=api_prefix)
+            fastapi.include_router(router, prefix=api_prefix)
         else:
             print(f"[WARNING] {module_name} has no router")
