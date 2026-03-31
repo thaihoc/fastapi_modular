@@ -55,10 +55,17 @@ Cấu trúc thư mục:
 
 Bước 1: Cài đặt python 3.14+ (pip 25+).
 
-Bước 2: Tạo môi trường ảo:
+Bước 2: Tạo môi trường ảo python cho project:
 
 ```bash
 python -m venv .venv              # .venv --> Tên của môi trường ảo
+```
+
+Chuyển đến môi trường ảo:
+
+```bash
+source .venv/bin/activate        # Mac/Linux
+.venv\Scripts\activate           # Windows
 ```
 
 Bước 3: Cài đặt các thư viện python:
@@ -88,12 +95,7 @@ Ghi chú: Tham khảo cài đặt postgres bằng podman (nếu chưa có) chi t
 
 ## Hướng dẫn làm việc với project
 
-Luôn luôn sử dụng môi trường ảo khi làm việc
-
-```bash
-source .venv/bin/activate        # Mac/Linux
-.venv\Scripts\activate           # Windows
-```
+Luôn luôn sử dụng môi trường ảo của python khi làm việc.
 
 Mỗi khi có thay đổi models thực hiện chạy migrate database để update lại CSDL:
 
@@ -113,9 +115,8 @@ Chạy ứng dụng:
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-# tự động reload lại
+# tự động reload lại ứng dụng khi code thay đổi
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
 ```
 
 
