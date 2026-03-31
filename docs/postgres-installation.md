@@ -50,5 +50,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO lx360u;
 Chuỗi kết nối cập nhật vào ứng dụng theo định dạng sau:
 
 ```
-DATABASE_URL=postgresql://lx360u:lx360p@localhost:5432/lx360db
+DB_URL=postgresql://lx360u:lx360p@localhost:5432/lx360db
+
+podman exec -it postgres psql -U lx360u -d lx360db
 ```

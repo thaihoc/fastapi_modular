@@ -59,7 +59,23 @@ pip install -r requirements.txt
 
 Cài đặt postgres bằng podman (nếu chưa có) --> xem hướng dẫn chi tiết tại thư mục docs.
 
+## Hướng dẫn migrate database
 
+Mỗi khi có thay đổi models thực hiện chạy migrate database để update lại CSDL:
+
+```bash
+alembic revision --autogenerate -m "init"
+
+alembic upgrade head
+```
+
+## Lưu ý
+
+Mỗi lần cài thêm thư viện cần chạy lại lệnh
+
+```bash
+
+```
 
 
 
