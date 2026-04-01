@@ -3,6 +3,7 @@
 Các tính năng chính:
 
 * Cấu trúc thư mục theo hướng modular (module-based)
+* Logger hỗ trợ debug/trace
 * Tự động sinh ra API docs (/docs)
 * Database migration (sử dụng Alembic)
 * Tự động register routers
