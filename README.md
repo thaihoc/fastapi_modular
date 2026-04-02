@@ -2,16 +2,16 @@
 
 Các tính năng chính:
 
-* Cấu trúc thư mục theo hướng modular (module-based)
-* Logger hỗ trợ debug/trace
-* Tự động sinh ra API docs (/docs)
-* Database migration (sử dụng Alembic)
-* Tự động register routers
-* Xác thực RESTful APIs bằng JWT
-* Kiểm tra quyền với nhiều giải pháp RBAC, ABAC và ACL (sử dụng Casbin)
-* Cache với Redis
-* Message queue với Redis
-* Xử lý file với MinIO
+* [x] Cấu trúc thư mục theo hướng modular (module-based)
+* [ ] Logger hỗ trợ debug/trace
+* [x] Tự động sinh ra API docs (/docs)
+* [x] Database migration (sử dụng Alembic)
+* [x] Tự động register routers
+* [ ] Xác thực RESTful APIs bằng JWT
+* [ ] Kiểm tra quyền với nhiều giải pháp RBAC, ABAC và ACL (sử dụng Casbin)
+* [ ] Cache với Redis
+* [ ] Message queue với Redis
+* [ ] Xử lý file với MinIO
 
 Cấu trúc thư mục:
 
