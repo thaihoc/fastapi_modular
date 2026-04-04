@@ -6,8 +6,6 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     auth_jwks: str
-    auth_issuer: str | None = None
-    auth_audience: str | None = None
     
     db_url: str
 
