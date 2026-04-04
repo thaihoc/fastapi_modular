@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.shared.deps import validate_token
+
 from .schemas import UserCreate, UserResponse
 from .deps import get_user_service
 from .service import UserService
 
-router = APIRouter(prefix="/users", tags=["Users"])
-
+router = APIRouter(prefix="/users", tags=["Users"], dependencies=[Depends(validate_token)])
 
 @router.post("/", response_model=UserResponse)
 def create_user(

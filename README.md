@@ -3,15 +3,15 @@
 Các tính năng chính:
 
 * [x] Cấu trúc thư mục theo hướng modular (module-based)
-* [ ] Logger hỗ trợ debug/trace
+* [x] Logger hỗ trợ debug/trace (sử dụng logging của Python)
 * [x] Tự động sinh ra API docs (/docs)
 * [x] Database migration (sử dụng Alembic)
 * [x] Tự động register routers
-* [ ] Xác thực RESTful APIs bằng JWT
+* [x] Xác thực REST APIs bằng JWT
+* [x] Cache với Redis (mặc định dùng InMemory)
 * [ ] Kiểm tra quyền với nhiều giải pháp RBAC, ABAC và ACL (sử dụng Casbin)
-* [ ] Cache với Redis
-* [ ] Message queue với Redis
-* [ ] Xử lý file với MinIO
+* [ ] Hướng dẫn cài đặt chuẩn production
+
 
 Cấu trúc thư mục:
 
