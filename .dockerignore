@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+*.pyc
+
+# Dev tools
+.git/
+.gitignore
+.env
+.env.*
+!.env.example
+
+# Alembic (chỉ copy migrations khi cần)
+# Uncomment nếu bạn KHÔNG chạy migrate trong container
+# alembic/
+
+# Test & CI
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+.github/
+
+# IDE
+.vscode/
+.idea/
+
+# Docs
+README.md
+docs/
