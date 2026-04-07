@@ -23,22 +23,27 @@ async def get_http_client():
         yield client
 
 @cache(expire=300)
-async def fetch_jwks(url: str) -> dict | None:
+async def fetch_jwks(url: str):
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(url)
             response.raise_for_status()
             result = response.json()
+            if "keys" not in result:
+                raise RuntimeError("Invalid JWKS payload")
             return result
     except Exception as e:
         logger.error(f"Failed to fetch JWKS: {e}")
         raise HTTPException(status_code=503, detail="JWKS temporarily unavailable")
 
-
-async def get_auth_jwks() -> dict | None:
+async def get_auth_jwks():
     if not settings.auth_jwks:
-        return None
-    return await fetch_jwks(settings.auth_jwks)
+        raise RuntimeError("auth_jwks is not configured")
+    try:
+        return await fetch_jwks(settings.auth_jwks)
+    except Exception as e:
+        logger.exception("Failed to fetch JWKS")
+        raise HTTPException(status_code=503, detail="Auth service unavailable")
 
 
 security = HTTPBearer(auto_error=False)
@@ -47,7 +52,7 @@ def get_token(
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     if not credentials:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorized", headers={"WWW-Authenticate": "Bearer"})
     return credentials.credentials
 
 
@@ -65,7 +70,10 @@ def validate_token(
 
     except HTTPException:
         raise
-
-    except Exception as e:
-        logger.error(f"JWT error: {e}")
-        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception:
+        logger.exception("JWT validation failed")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
