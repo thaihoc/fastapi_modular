@@ -144,3 +144,5 @@ podman run -d --network dns
     -e AUTH_JWKS=http://keycloak:8080/realms/master/protocol/openid-connect/certs
     fastapi-template:v1
 ```
+
+Truy cập vào URL sau để kiểm tra ứng dụng đã run thành công: http://localhost:8000
