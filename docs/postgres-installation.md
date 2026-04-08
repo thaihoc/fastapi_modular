@@ -4,6 +4,12 @@ Cài đặt Postgres bằng Podman phục vụ môi trường dev.
 
 # Hướng dẫn cài đặt
 
+Tạo network nếu chưa có:
+
+```bash
+podman network create dns
+```
+
 Tạo volumn:
 
 ```bash
@@ -15,6 +21,7 @@ Run postgres:
 ```bash
 podman run -d \
     --name postgres \
+    --network dns \
     -e POSTGRES_USER=admin \
     -e POSTGRES_PASSWORD=dns123 \
     -e POSTGRES_DB=dns \

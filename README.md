@@ -5,12 +5,12 @@ Các tính năng chính:
 * [x] Cấu trúc thư mục theo hướng modular (module-based)
 * [x] Logger hỗ trợ debug/trace (sử dụng logging của Python)
 * [x] Tự động sinh ra API docs (/docs)
-* [x] Database migration (sử dụng Alembic)
+* [x] Database migration với Postgres (sử dụng Alembic)
 * [x] Tự động register routers
 * [x] Xác thực REST APIs bằng JWT
 * [x] Cache với Redis (mặc định dùng InMemory)
 * [ ] Kiểm tra quyền với nhiều giải pháp RBAC, ABAC và ACL (sử dụng Casbin)
-* [ ] Hướng dẫn cài đặt chuẩn production
+* [x] Hướng dẫn cài đặt chuẩn production
 
 
 Cấu trúc thư mục:
@@ -36,11 +36,13 @@ Cấu trúc thư mục:
 │   │   │   ├── repo.py      # Truy vấn database (Repository)
 │   │   │   └── deps.py      # Dependencies riêng (ví dụ: get_current_user)
 │   │   │
-│   │   ├── products/        # Module Quản lý sản phẩm
+│   │   ├── clients/        # Module Quản lý sản phẩm
 │   │   │   ├── api.py
 │   │   │   ├── models.py
 │   │   │   ├── schemas.py
-│   │   │   └── service.py
+│   │   │   ├── service.py   
+│   │   │   ├── repo.py      
+│   │   │   └── deps.py      
 │   │
 │   └── shared/              # Utils, Helpers dùng chung (gửi mail, upload file)
 │       └── utils.py
@@ -120,6 +122,25 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+## Hướng dẫn build và cài đặt với Podman
 
+Build image:
 
+```bash
+podman build -t fastapi-template:v1 .
+```
 
+Run ứng dụng:
+
+```bash
+podman run -d --network dns 
+    --name fastapi-template 
+    -p 8000:8000
+    -e PROJECT_NAME="FastAPI Modular Tempate"
+    -e DEBUG=True
+    -e LOG_LEVEL=DEBUG
+    -e DB_URL=postgresql://lx360u:lx360p@postgres:5432/lx360db
+    -e REDIS_CACHE_URL=redis://redis:6379
+    -e AUTH_JWKS=http://keycloak:8080/realms/master/protocol/openid-connect/certs
+    fastapi-template:v1
+```

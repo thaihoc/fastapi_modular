@@ -2,6 +2,12 @@
 
 Hướng dẫn cài đặt Redis cho môi trường dev.
 
+Tạo network nếu chưa có:
+
+```bash
+podman network create dns
+```
+
 Tạo volumne lưu data:
 
 ```bash
@@ -13,6 +19,7 @@ Run Redis:
 ```bash
 podman run -d \
   --name redis \
+  --network dns \
   -p 6379:6379 \
   -v redis-data:/data \
   docker.io/redis:alpine
