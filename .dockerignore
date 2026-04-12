@@ -1,33 +1,43 @@
-# Python
-__pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-*.pyc
-
-# Dev tools
-.git/
+# Version control
+.git
 .gitignore
+
+# Secrets & config cục bộ
 .env
 .env.*
-!.env.example
+*.pem
+*.key
+secrets/
 
-# Alembic (chỉ copy migrations khi cần)
-# Uncomment nếu bạn KHÔNG chạy migrate trong container
-# alembic/
-
-# Test & CI
-tests/
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+.mypy_cache/
+.ruff_cache/
 .pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Test & dev
+tests/
 .coverage
 htmlcov/
-.github/
+.tox/
 
-# IDE
+# Editor & OS
 .vscode/
 .idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docker files (không cần copy vào image)
+Dockerfile*
+.dockerignore
+docker-compose*.yml
 
 # Docs
-README.md
 docs/
+*.md

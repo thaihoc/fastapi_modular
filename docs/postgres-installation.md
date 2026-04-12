@@ -19,14 +19,14 @@ podman volume create pgdata
 Run postgres:
 
 ```bash
-podman run -d \
-    --name postgres \
-    --network dns \
-    -e POSTGRES_USER=admin \
-    -e POSTGRES_PASSWORD=dns123 \
-    -e POSTGRES_DB=dns \
-    -p 5432:5432 \
-    -v pgdata:/var/lib/postgresql \
+podman run -d
+    --name postgres
+    --network dns
+    -e POSTGRES_USER=admin
+    -e POSTGRES_PASSWORD=dns123
+    -e POSTGRES_DB=dns
+    -p 5432:5432
+    -v pgdata:/var/lib/postgresql
     postgres:18.3
 ```
 

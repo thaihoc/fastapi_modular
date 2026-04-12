@@ -2,6 +2,12 @@
 
 Sử dụng Podman để cài đặt Keycloak phục vụ cho test tính năng validate token.
 
+Tạo network nếu chưa có:
+
+```bash
+podman network create dns
+```
+
 Tạo volumn để lưu dữ liệu:
 
 ```bash
@@ -10,13 +16,14 @@ podman volume create kcdata
 Run keycloak:
 
 ```bash
-podman run -d \
-  --name keycloak \
-  -p 8080:8080 \
-  -e KEYCLOAK_ADMIN=admin \
-  -e KEYCLOAK_ADMIN_PASSWORD=admin \
-  -v kcdata:/opt/keycloak/data \
-  quay.io/keycloak/keycloak:latest \
+podman run -d
+  --name keycloak
+  --network dns
+  -p 8080:8080
+  -e KEYCLOAK_ADMIN=admin
+  -e KEYCLOAK_ADMIN_PASSWORD=admin
+  -v kcdata:/opt/keycloak/data
+  quay.io/keycloak/keycloak:latest
   start-dev
 ```
 

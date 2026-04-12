@@ -14,7 +14,7 @@ RUN groupadd --gid 1001 appgroup && \
     useradd --uid 1001 --gid appgroup --no-create-home appuser
 
 # =============================================================================
-# Stage 2 — builder: cài đặt tất cả dependencies (layer này bị loại bỏ sau)
+# Stage 2 — builder: cài đặt dependencies vào virtualenv
 # =============================================================================
 FROM base AS builder
 
@@ -25,11 +25,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /build
 
+# Pin pip để tránh breaking change
+RUN pip install --no-cache-dir "pip==24.3.1"
+
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir \
-        --target /build/packages \
+# Dùng venv thay --target để tránh edge case với namespace packages
+RUN python -m venv /venv && \
+    /venv/bin/pip install --no-cache-dir \
         uvloop \
         httptools \
         gunicorn \
@@ -40,34 +43,36 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # =============================================================================
 FROM base AS production
 
+# Pin version libpq5 để tránh drift giữa các lần build
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        libpq5 \
+        "libpq5=15.*" \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY --from=builder /build/packages /app/packages
-COPY --chown=appuser:appgroup . .
+# Copy venv từ builder (không cần PYTHONPATH hack)
+COPY --from=builder /venv /venv
 
-ENV PYTHONPATH="/app/packages:/app" \
+# Chỉ copy những thứ app cần — KHÔNG dùng COPY . .
+# Đảm bảo .dockerignore đã loại trừ .env, .git, tests/, v.v.
+COPY --chown=appuser:appgroup app/          ./app/
+COPY --chown=appuser:appgroup gunicorn.conf.py ./
+
+# Kích hoạt venv bằng PATH thay vì PYTHONPATH
+ENV PATH="/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
+
+# WEB_CONCURRENCY linh hoạt theo môi trường (staging vs production)
+ENV WEB_CONCURRENCY=4
 
 USER appuser
 
 EXPOSE 8000
 
-# Gunicorn + UvicornWorker: production-grade process management
-# - workers: (2 × CPU) + 1  → đổi theo số CPU của server
-# - timeout: phù hợp cho request có DB/Redis call
-# - preload: khởi tạo app 1 lần, fork ra các workers (tiết kiệm RAM)
-CMD ["gunicorn", "app.main:app", \
-     "--worker-class", "uvicorn.workers.UvicornWorker", \
-     "--workers", "4", \
-     "--bind", "0.0.0.0:8000", \
-     "--timeout", "60", \
-     "--graceful-timeout", "30", \
-     "--keep-alive", "5", \
-     "--preload", \
-     "--access-logfile", "-", \
-     "--error-logfile", "-"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD python -c \
+        "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+
+# Dùng gunicorn.conf.py để cấu hình thay vì inline args
+CMD ["gunicorn", "app.main:app", "--config", "gunicorn.conf.py"]

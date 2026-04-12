@@ -36,7 +36,7 @@ Cấu trúc thư mục:
 │   │   │   ├── repo.py      # Truy vấn database (Repository)
 │   │   │   └── deps.py      # Dependencies riêng (ví dụ: get_current_user)
 │   │   │
-│   │   ├── clients/        # Module Quản lý sản phẩm
+│   │   ├── clients/        
 │   │   │   ├── api.py
 │   │   │   ├── models.py
 │   │   │   ├── schemas.py
@@ -80,7 +80,7 @@ pip install -r requirements.txt
 Bước 4: Tạo file cấu hình .env với nội dung sau:
 
 ```bash
-APP_NAME=FastAPI Modular Tempate
+APP_NAME="FastAPI Modular Tempate"
 DEBUG=True
 
 DB_URL=postgresql://lx360u:lx360p@localhost:5432/lx360db
@@ -127,14 +127,14 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 Build image:
 
 ```bash
-podman build -t fastapi-template:v1 .
+podman build -t fastapi-modular:v1 .
 ```
 
 Run ứng dụng:
 
 ```bash
 podman run -d --network dns 
-    --name fastapi-template 
+    --name fastapi-modular 
     -p 8000:8000
     -e PROJECT_NAME="FastAPI Modular Tempate"
     -e DEBUG=True
@@ -142,7 +142,9 @@ podman run -d --network dns
     -e DB_URL=postgresql://lx360u:lx360p@postgres:5432/lx360db
     -e REDIS_CACHE_URL=redis://redis:6379
     -e AUTH_JWKS=http://keycloak:8080/realms/master/protocol/openid-connect/certs
-    fastapi-template:v1
+    -e WEB_CONCURRENCY=4
+    -e GUNICORN_TIMEOUT=60
+    fastapi-modular:v1
 ```
 
-Truy cập vào URL sau để kiểm tra ứng dụng đã run thành công: http://localhost:8000
+Truy cập vào URL sau để kiểm tra ứng dụng đã run thành công: http://localhost:8000/docs

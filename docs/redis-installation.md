@@ -17,11 +17,11 @@ podman volume create redis-data
 Run Redis:
 
 ```bash
-podman run -d \
-  --name redis \
-  --network dns \
-  -p 6379:6379 \
-  -v redis-data:/data \
+podman run -d
+  --name redis
+  --network dns
+  -p 6379:6379
+  -v redis-data:/data
   docker.io/redis:alpine
 ```
 
