@@ -45,7 +45,7 @@ FROM base AS production
 
 # Pin version libpq5 để tránh drift giữa các lần build
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        "libpq5=15.*" \
+        libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
