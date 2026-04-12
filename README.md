@@ -103,7 +103,7 @@ Luôn luôn sử dụng môi trường ảo của python khi làm việc.
 Mỗi khi có thay đổi models thực hiện chạy migrate database để update lại CSDL:
 
 ```bash
-alembic revision --autogenerate -m "them bang luu danh muc chuc vu"
+alembic revision --autogenerate -m "add client feature"
 alembic upgrade head
 ```
 
