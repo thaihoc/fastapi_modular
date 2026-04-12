@@ -14,8 +14,7 @@ def create_client(
     try:
         return service.create_client(
             name=data.name,
-            email=data.email,
-            phone=data.phone
+            email=data.email
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
