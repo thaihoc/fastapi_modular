@@ -4,6 +4,7 @@ class Settings(BaseSettings):
     project_name: str = "FastAPI Module-based Template"
     debug: bool = False
     log_level: str = "INFO"
+    root_path: str = ""
 
     auth_jwks: str
     

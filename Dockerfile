@@ -58,6 +58,8 @@ COPY --from=builder /venv /venv
 # Chỉ copy những thứ app cần — KHÔNG dùng COPY . .
 # Đảm bảo .dockerignore đã loại trừ .env, .git, tests/, v.v.
 COPY --chown=appuser:appgroup app/          ./app/
+COPY --chown=appuser:appgroup alembic/      ./alembic/
+COPY --chown=appuser:appgroup alembic.ini   ./
 COPY --chown=appuser:appgroup gunicorn.conf.py ./
 
 # Kích hoạt venv bằng PATH thay vì PYTHONPATH
@@ -76,5 +78,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD python -c \
         "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
-# Dùng gunicorn.conf.py để cấu hình thay vì inline args
+# Migration được xử lý bởi K8s init container — không chạy ở đây
 CMD ["gunicorn", "app.main:app", "--config", "gunicorn.conf.py"]
