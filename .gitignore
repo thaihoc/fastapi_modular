@@ -105,6 +105,3 @@ secrets.json
 
 # Claude Code
 .claude/
-
-# AI Context
-ai-context.md
