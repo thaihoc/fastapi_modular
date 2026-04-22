@@ -130,21 +130,62 @@ Build image:
 podman build -t fastapi-modular:v1 .
 ```
 
-Run ứng dụng:
+Run ứng dụng (tự động migrate rồi start):
 
 ```bash
-podman run -d --network dns 
-    --name fastapi-modular 
-    -p 8000:8000
-    -e PROJECT_NAME="FastAPI Modular Tempate"
-    -e DEBUG=True
-    -e LOG_LEVEL=DEBUG
-    -e DB_URL=postgresql://lx360u:lx360p@postgres:5432/lx360db
-    -e REDIS_CACHE_URL=redis://redis:6379
-    -e AUTH_JWKS=http://keycloak:8080/realms/master/protocol/openid-connect/certs
-    -e WEB_CONCURRENCY=4
-    -e GUNICORN_TIMEOUT=60
+podman run -d --network dns \
+    --name fastapi-modular \
+    -p 8000:8000 \
+    -e PROJECT_NAME="FastAPI Modular Tempate" \
+    -e DEBUG=True \
+    -e LOG_LEVEL=DEBUG \
+    -e DB_URL=postgresql://lx360u:lx360p@postgres:5432/lx360db \
+    -e REDIS_CACHE_URL=redis://redis:6379 \
+    -e AUTH_JWKS=http://keycloak:8080/realms/master/protocol/openid-connect/certs \
+    -e WEB_CONCURRENCY=4 \
+    -e GUNICORN_TIMEOUT=60 \
     fastapi-modular:v1
 ```
 
+Container sẽ tự động chạy `alembic upgrade head` trước khi start gunicorn (mặc định của `entrypoint.sh`).
+
+Nếu muốn chỉ chạy migration mà không start app (ví dụ: kiểm tra trước khi deploy):
+
+```bash
+podman run --rm --network dns \
+    -e DB_URL=postgresql://lx360u:lx360p@postgres:5432/lx360db \
+    fastapi-modular:v1 ./entrypoint.sh migrate
+```
+
 Truy cập vào URL sau để kiểm tra ứng dụng đã run thành công: http://localhost:8000/docs
+
+## Hướng dẫn deploy lên Kubernetes
+
+Build và push image lên registry:
+
+```bash
+podman build -t your-registry/fastapi-modular:v1 .
+podman push your-registry/fastapi-modular:v1
+```
+
+Tạo Secret chứa các biến môi trường nhạy cảm:
+
+```bash
+kubectl create secret generic fastapi-app-secrets \
+    --from-literal=DB_URL=postgresql://user:pass@postgres:5432/db \
+    --from-literal=REDIS_CACHE_URL=redis://redis:6379
+```
+
+Deploy lên K8s:
+
+```bash
+kubectl apply -f k8s/deployment.yaml
+```
+
+`entrypoint.sh` hỗ trợ 3 chế độ — K8s dùng init container để tách migration ra khỏi app pod:
+
+| Command | Hành vi | Dùng ở đâu |
+|---|---|---|
+| `./entrypoint.sh` | migrate → start | Docker / Podman |
+| `./entrypoint.sh migrate` | chỉ migrate, exit | K8s init container |
+| `./entrypoint.sh start` | chỉ start gunicorn | K8s main container |

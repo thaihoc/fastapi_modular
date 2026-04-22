@@ -57,26 +57,26 @@ COPY --from=builder /venv /venv
 
 # Chỉ copy những thứ app cần — KHÔNG dùng COPY . .
 # Đảm bảo .dockerignore đã loại trừ .env, .git, tests/, v.v.
-COPY --chown=appuser:appgroup app/          ./app/
-COPY --chown=appuser:appgroup alembic/      ./alembic/
-COPY --chown=appuser:appgroup alembic.ini   ./
+COPY --chown=appuser:appgroup app/            ./app/
+COPY --chown=appuser:appgroup alembic/        ./alembic/
+COPY --chown=appuser:appgroup alembic.ini     ./
 COPY --chown=appuser:appgroup gunicorn.conf.py ./
+COPY --chown=appuser:appgroup entrypoint.sh   ./
+
+# chmod phải chạy trước USER appuser (cần root để chmod)
+RUN chmod +x ./entrypoint.sh
 
 # Kích hoạt venv bằng PATH thay vì PYTHONPATH
 ENV PATH="/venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# WEB_CONCURRENCY linh hoạt theo môi trường (staging vs production)
 ENV WEB_CONCURRENCY=4
 
 USER appuser
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD python -c \
-        "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
-
-# Migration được xử lý bởi K8s init container — không chạy ở đây
-CMD ["gunicorn", "app.main:app", "--config", "gunicorn.conf.py"]
+# Mặc định: migrate-and-start (dùng cho Docker / docker-compose)
+# K8s override: init container dùng "migrate", main container dùng "start"
+CMD ["./entrypoint.sh"]

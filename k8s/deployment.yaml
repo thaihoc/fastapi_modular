@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-app
+  labels:
+    app: fastapi-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fastapi-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0   # zero-downtime: luôn giữ đủ pod healthy
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: fastapi-app
+    spec:
+      # Chạy migration MỘT LẦN trước khi bất kỳ app pod nào start.
+      # Dùng chung image — không cần image riêng cho migration.
+      initContainers:
+        - name: alembic-migrate
+          image: your-registry/fastapi-app:latest
+          command: ["./entrypoint.sh", "migrate"]
+          envFrom:
+            - secretRef:
+                name: fastapi-app-secrets   # chứa DATABASE_URL, v.v.
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+      containers:
+        - name: fastapi-app
+          image: your-registry/fastapi-app:latest
+          command: ["./entrypoint.sh", "start"]   # bỏ qua migration
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: fastapi-app-secrets
+          env:
+            - name: WEB_CONCURRENCY
+              value: "4"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
