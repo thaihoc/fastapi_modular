@@ -1,0 +1,182 @@
+# Developer Guide Documents
+
+Tài liệu hướng dẫn cho lập trình viên làm việc với project.
+
+## Source Code Architecture
+
+Cấu trúc thư mục:
+
+```plaintext
+.
+├── app/
+│   ├── main.py              # Entry point: Khởi tạo FastAPI & kết nối các module
+│   ├── core/                # Các thiết lập dùng chung cho toàn bộ App
+│   │   ├── config.py        # Quản lý biến môi trường (pydantic-settings)
+│   │   ├── security.py      # Hashing password, JWT logic
+│   │   └── exceptions.py    # Custom Exception handlers
+│   ├── db/                  # Các thiết lập dùng chung cho toàn bộ App
+│   │   ├── base.py          # Quản lý các models trong database
+│   │   └── session.py       # Tạo kết nối database
+│   │
+│   ├── modules/             # <--- Danh sách các Module nghiệp vụ
+│   │   ├── users/           # Module Quản lý người dùng
+│   │   │   ├── api.py       # Các route: /users/me, /users/{id}
+│   │   │   ├── models.py    # Bảng User trong Database --> giống Entity
+│   │   │   ├── schemas.py   # Pydantic (UserCreate, UserRead) --> giống DTO
+│   │   │   ├── service.py   # Logic: register_user, get_user_by_email
+│   │   │   ├── repo.py      # Truy vấn database (Repository)
+│   │   │   └── deps.py      # Dependencies riêng (ví dụ: get_current_user)
+│   │   │
+│   │   ├── clients/        
+│   │   │   ├── api.py
+│   │   │   ├── models.py
+│   │   │   ├── schemas.py
+│   │   │   ├── service.py   
+│   │   │   ├── repo.py      
+│   │   │   └── deps.py      
+│   │
+│   └── shared/              # Utils, Helpers dùng chung (gửi mail, upload file)
+│       └── utils.py
+│
+├── alembic/                 # Thư mục quản lý phiên bản DB (Alembic)
+├── tests/                   # Thư mục chứa các bài kiểm tra (Pytest)
+├── .env                     # Lưu SECRET_KEY, DATABASE_URL...
+├── Dockerfile               # Cấu hình đóng gói ứng dụng
+└── requirements.txt         # Danh sách thư viện
+```
+
+## Hướng dẫn setup project lần đầu
+
+Bước 1: Cài đặt python 3.14+ (pip 25+).
+
+Bước 2: Tạo môi trường ảo python cho project:
+
+```bash
+python -m venv .venv              # .venv --> Tên của môi trường ảo
+```
+
+Chuyển đến môi trường ảo:
+
+```bash
+source .venv/bin/activate        # Mac/Linux
+.venv\Scripts\activate           # Windows
+```
+
+Bước 3: Cài đặt các thư viện python:
+
+```bash
+pip install -r requirements.txt
+```
+
+Bước 4: Tạo file cấu hình .env với nội dung sau:
+
+```bash
+APP_NAME="FastAPI Modular Tempate"
+DEBUG=True
+
+DB_URL=postgresql://lx360u:lx360p@localhost:5432/lx360db
+REDIS_URL=redis://localhost:6379/0
+```
+
+Bước 5: Thực hiện migrate database
+
+```bash
+alembic revision --autogenerate -m "init"
+alembic upgrade head
+```
+
+Ghi chú: Tham khảo cài đặt postgres bằng podman (nếu chưa có) chi tiết tại thư mục docs.
+
+## Hướng dẫn làm việc với project
+
+Luôn luôn sử dụng môi trường ảo của python khi làm việc.
+
+Mỗi khi có thay đổi models thực hiện chạy migrate database để update lại CSDL:
+
+```bash
+alembic revision --autogenerate -m "add client feature"
+alembic upgrade head
+```
+
+Mỗi khi có thêm mới, nâng cấp hoặc xoá thư viện hãy update lại file requirements.txt bằng lệnh:
+
+```bash
+pip freeze > requirements.txt
+```
+
+Chạy ứng dụng:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# tự động reload lại ứng dụng khi code thay đổi
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## Hướng dẫn build và cài đặt với Podman
+
+Build image:
+
+```bash
+podman build -t fastapi-modular:v1 .
+```
+
+Run ứng dụng (tự động migrate rồi start):
+
+```bash
+podman run -d --network dns \
+    --name fastapi-modular \
+    -p 8000:8000 \
+    -e PROJECT_NAME="FastAPI Modular Tempate" \
+    -e DEBUG=True \
+    -e LOG_LEVEL=DEBUG \
+    -e DB_URL=postgresql://lx360u:lx360p@postgres:5432/lx360db \
+    -e REDIS_CACHE_URL=redis://redis:6379 \
+    -e AUTH_JWKS=http://keycloak:8080/realms/master/protocol/openid-connect/certs \
+    -e WEB_CONCURRENCY=4 \
+    -e GUNICORN_TIMEOUT=60 \
+    fastapi-modular:v1
+```
+
+Container sẽ tự động chạy `alembic upgrade head` trước khi start gunicorn (mặc định của `entrypoint.sh`).
+
+Nếu muốn chỉ chạy migration mà không start app (ví dụ: kiểm tra trước khi deploy):
+
+```bash
+podman run --rm --network dns \
+    -e DB_URL=postgresql://lx360u:lx360p@postgres:5432/lx360db \
+    fastapi-modular:v1 ./entrypoint.sh migrate
+```
+
+Truy cập vào URL sau để kiểm tra ứng dụng đã run thành công: http://localhost:8000/docs
+
+## Hướng dẫn deploy lên Kubernetes
+
+Build và push image lên registry:
+
+```bash
+podman build -t your-registry/fastapi-modular:v1 .
+podman push your-registry/fastapi-modular:v1
+```
+
+Tạo Secret chứa các biến môi trường nhạy cảm:
+
+```bash
+kubectl create secret generic fastapi-app-secrets \
+    --from-literal=DB_URL=postgresql://user:pass@postgres:5432/db \
+    --from-literal=REDIS_CACHE_URL=redis://redis:6379
+```
+
+Deploy lên K8s:
+
+```bash
+kubectl apply -f k8s/deployment.yaml
+```
+
+`entrypoint.sh` hỗ trợ 3 chế độ — K8s dùng init container để tách migration ra khỏi app pod:
+
+| Command | Hành vi | Dùng ở đâu |
+|---|---|---|
+| `./entrypoint.sh` | migrate → start | Docker / Podman |
+| `./entrypoint.sh migrate` | chỉ migrate, exit | K8s init container |
+| `./entrypoint.sh start` | chỉ start gunicorn | K8s main container |
